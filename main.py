@@ -86,6 +86,7 @@ class Game:
         self.width = width
         self.height = height
         self.num_mines = num_mines
+        self.num_opened = 0
         self.over = False
         self.win = False
         self.num_flags = 0
@@ -166,11 +167,11 @@ class Game:
                 x = tile.x + x_offset
                 y = tile.y + y_offset
                 if (x in range(self.width) and y in range(self.height) and self.grid[y][x].clicked != True):
-                    self.grid[y][x].clicked = True
                     self.click_tile(self.grid[y][x])
 
     def click_tile(self, tile: Tile):
         tile.clicked = True
+        self.num_opened += 1
         if (tile.number == 0 and not tile.has_mine):
             self.click_surrounding(tile)
 
@@ -186,9 +187,10 @@ class Game:
         tile.has_flag = not (tile.has_flag)
         if (tile.has_flag):
             self.num_flags += 1
+            if (self.num_flags == self.num_mines):
+                self.check_over()
         else:
             self.num_flags -= 1
-        self.check_over()
 
     def populate_numbers(self):
         for col in self.grid:
@@ -242,7 +244,7 @@ class Game:
                 self.open_all_mines()
                 self.over = True
                 self.win = False
-            else:
+            elif (self.num_opened == (self.width * self.height - self.num_mines)):
                 self.check_over()
 
     def update(self, dt):
