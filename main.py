@@ -171,7 +171,7 @@ class Game:
 
     def click_tile(self, tile: Tile):
         tile.clicked = True
-        if (tile.number == 0):
+        if (tile.number == 0 and not tile.has_mine):
             self.click_surrounding(tile)
 
     def open_all_mines(self):
@@ -254,4 +254,4 @@ class Game:
         pyglet.app.run()
 
 
-Game(10, 10, 10).run()
+Game(20, 20, 40).run()
