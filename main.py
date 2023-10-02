@@ -1,5 +1,6 @@
-import pyglet
 import random
+
+import pyglet
 
 WINDOW_WIDTH = 600
 WINDOW_HEIGHT = 600
@@ -85,6 +86,9 @@ class Game:
         self.width = width
         self.height = height
         self.num_mines = num_mines
+        self.over = False
+        self.win = False
+        self.num_flags = 0
         self.running = True
         if (num_mines > self.width * self.height // 2):
             print("ERROR: TOO MANY MINES")
@@ -122,6 +126,36 @@ class Game:
             tile.mine = Mine(self.sq_size, tile.x, tile.y)
             mines_to_fill -= 1
 
+    def check_over(self):
+        num_correct_flags = 0
+        all_opened = True
+        for col in self.grid:
+            for tile in col:
+                if (tile.has_flag and tile.has_mine):
+                    num_correct_flags += 1
+                if (not tile.has_mine and not (tile.clicked or tile.has_flag)):
+                    all_opened = False
+        if (all_opened or (num_correct_flags == self.num_flags and self.num_flags == self.num_mines)):
+            self.over = True
+            self.win = True
+            if (not all_opened):
+                self.open_correct()
+            self.place_correct_flags()
+
+    def open_correct(self):
+        for col in self.grid:
+            for tile in col:
+                if (not tile.has_mine and not tile.has_flag):
+                    tile.clicked = True
+
+    def place_correct_flags(self):
+        for col in self.grid:
+            for tile in col:
+                if (tile.has_mine):
+                    tile.has_flag = True
+                # elif (tile.has_flag):
+                #     tile.make_flag_blue()
+
     def click_surrounding(self, tile: Tile):
         x_offsets = [-1, 0, 1]
         y_offsets = [-1, 0, 1]
@@ -150,6 +184,11 @@ class Game:
 
     def flag_tile(self, tile: Tile):
         tile.has_flag = not (tile.has_flag)
+        if (tile.has_flag):
+            self.num_flags += 1
+        else:
+            self.num_flags -= 1
+        self.check_over()
 
     def populate_numbers(self):
         for col in self.grid:
@@ -192,12 +231,19 @@ class Game:
     def on_mouse_press(self, x, y, button, modifiers):
         row = int(x // self.sq_size)
         col = int(y // self.sq_size)
+        if (self.over):
+            self.running = False
+            return
         if (button == pyglet.window.mouse.RIGHT and not self.grid[col][row].clicked):
             self.flag_tile(self.grid[col][row])
         elif (button == pyglet.window.mouse.LEFT and not self.grid[col][row].has_flag):
             self.click_tile(self.grid[col][row])
             if (self.grid[col][row].has_mine):
                 self.open_all_mines()
+                self.over = True
+                self.win = False
+            else:
+                self.check_over()
 
     def update(self, dt):
         if (not (self.running)):
@@ -208,4 +254,4 @@ class Game:
         pyglet.app.run()
 
 
-Game(20, 20, 40).run()
+Game(10, 10, 10).run()
