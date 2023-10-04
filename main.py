@@ -234,6 +234,10 @@ class Game:
         row = int(x // self.sq_size)
         col = int(y // self.sq_size)
         if (self.over):
+            if (self.win):
+                print("You Won!")
+            else:
+                print("You Lost")
             self.running = False
             return
         if (button == pyglet.window.mouse.RIGHT and not self.grid[col][row].clicked):
@@ -256,4 +260,4 @@ class Game:
         pyglet.app.run()
 
 
-Game(20, 20, 40).run()
+Game(15, 15, 45).run()
