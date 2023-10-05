@@ -83,6 +83,13 @@ class Tile:
 
 class Game:
     def __init__(self, width: int, height: int, num_mines: int):
+        self.window = pyglet.window.Window(
+            WINDOW_WIDTH, WINDOW_HEIGHT + 30)
+        self.window.set_caption("Minesweeper")
+        self.window.push_handlers(self)
+        self.start_game(width, height, num_mines)
+
+    def start_game(self, width, height, num_mines):
         self.width = width
         self.height = height
         self.num_mines = num_mines
@@ -94,10 +101,7 @@ class Game:
         if (num_mines > self.width * self.height // 2):
             print("ERROR: TOO MANY MINES")
             self.running = False
-        self.window = pyglet.window.Window(
-            WINDOW_WIDTH, WINDOW_HEIGHT + 30)
-        self.window.set_caption("Minesweeper")
-        self.window.push_handlers(self)
+
         self.sq_size = min(WINDOW_WIDTH // width, WINDOW_HEIGHT // height)
         self.background_square = pyglet.image.SolidColorImagePattern(
             (BACKGROUND_GRAYSCALE, BACKGROUND_GRAYSCALE, BACKGROUND_GRAYSCALE, 255)).create_image(self.sq_size, self.sq_size)
@@ -112,7 +116,6 @@ class Game:
         self.underlay_square.anchor_y = int((self.sq_size * 9 // 10) / 2)
         self.overlay_square.anchor_x = int((self.sq_size * 9 // 10) / 2)
         self.overlay_square.anchor_y = int((self.sq_size * 9 // 10) / 2)
-
         self.grid = [[Tile(self.sq_size, x, y, False)
                       for x in range(self.width)] for y in range(self.height)]
         self.fill_mines()
@@ -213,8 +216,8 @@ class Game:
 
     def on_draw(self):
         self.window.clear()
-        img = pyglet.text.Label(f"Mines: {self.num_mines}\tFlags: {self.num_flags}", color=(255, 255, 255, 255),
-                                x=0, y=WINDOW_HEIGHT+8, font_size=20)
+        img = pyglet.text.Label(f"Mines: {self.num_mines}\tFlags: {self.num_flags}\t\tRESTART", color=(255, 255, 255, 255),
+                                x=20, y=WINDOW_HEIGHT+8, font_size=18)
         img.draw()
         for x in range(self.width):
             for y in range(self.height):
@@ -238,6 +241,14 @@ class Game:
     def on_mouse_press(self, x, y, button, modifiers):
         row = int(x // self.sq_size)
         col = int(y // self.sq_size)
+        if (x > WINDOW_WIDTH * 4 / 5 and y > WINDOW_HEIGHT):
+            if (self.over):
+                if (self.win):
+                    print("You Won!")
+                else:
+                    print("You Lost")
+            self.start_game(self.width, self.height, self.num_mines)
+
         if (y > WINDOW_HEIGHT):
             return
         if (self.over):
