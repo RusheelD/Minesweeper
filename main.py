@@ -94,7 +94,8 @@ class Game:
         if (num_mines > self.width * self.height // 2):
             print("ERROR: TOO MANY MINES")
             self.running = False
-        self.window = pyglet.window.Window(WINDOW_WIDTH, WINDOW_HEIGHT + 30)
+        self.window = pyglet.window.Window(
+            WINDOW_WIDTH, WINDOW_HEIGHT + 30, title="Minesweeper")
         self.window.push_handlers(self)
         self.sq_size = min(WINDOW_WIDTH // width, WINDOW_HEIGHT // height)
         self.background_square = pyglet.image.SolidColorImagePattern(
