@@ -94,7 +94,7 @@ class Game:
         if (num_mines > self.width * self.height // 2):
             print("ERROR: TOO MANY MINES")
             self.running = False
-        self.window = pyglet.window.Window(WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.window = pyglet.window.Window(WINDOW_WIDTH, WINDOW_HEIGHT + 30)
         self.window.push_handlers(self)
         self.sq_size = min(WINDOW_WIDTH // width, WINDOW_HEIGHT // height)
         self.background_square = pyglet.image.SolidColorImagePattern(
@@ -211,6 +211,9 @@ class Game:
 
     def on_draw(self):
         self.window.clear()
+        img = pyglet.text.Label(f"Mines: {self.num_mines}\tFlags: {self.num_flags}", color=(255, 255, 255, 255),
+                                x=0, y=WINDOW_HEIGHT+8, font_size=20)
+        img.draw()
         for x in range(self.width):
             for y in range(self.height):
 
@@ -233,6 +236,8 @@ class Game:
     def on_mouse_press(self, x, y, button, modifiers):
         row = int(x // self.sq_size)
         col = int(y // self.sq_size)
+        if (y > WINDOW_HEIGHT):
+            return
         if (self.over):
             if (self.win):
                 print("You Won!")
